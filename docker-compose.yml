@@ -1,0 +1,76 @@
+version: '3'
+services:
+  recruitment:
+    build:
+      context: ./recruitment
+    ports:
+        - "3000:3000"
+    env_file:
+      - ./recruitment/.env/development/database
+      - ./recruitment/.env/development/web
+    volumes:
+      - ./recruitment:/usr/src/app
+    environment:
+      - WEBPACKER_DEV_SERVER_HOST=recruitment-webpack-dev-server
+  recruitment-webpack-dev-server:
+    build:
+      context: ./recruitment
+    command: ./bin/webpack-dev-server
+    ports:
+      - 3035:3035
+    volumes:
+      - ./recruitment:/usr/src/app
+    env_file:
+      - ./recruitment/.env/development/database
+      - ./recruitment/.env/development/web
+    environment:
+      - WEBPACKER_DEV_SERVER_HOST=0.0.0.0
+  redis:
+    image: redis
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: 'rabbitmq'
+    ports:
+        - 5672:5672
+        - 15672:15672
+  recruitment-database:
+    image: postgres
+    env_file:
+      - ./recruitment/.env/development/database
+    volumes:
+      - recruitment_db_data:/var/lib/postgresql/data
+  onboarding:
+    build:
+      context: ./onboarding
+    ports:
+        - "3001:3000"
+    env_file:
+      - ./onboarding/.env/development/database
+      - ./onboarding/.env/development/web
+    volumes:
+      - ./onboarding:/usr/src/app
+    environment:
+      - WEBPACKER_DEV_SERVER_HOST=onboarding-webpack-dev-server
+  onboarding-webpack-dev-server:
+    build:
+      context: ./onboarding
+    command: ./bin/webpack-dev-server
+    ports:
+      - 3036:3035
+    volumes:
+      - ./onboarding:/usr/src/app
+    env_file:
+      - ./onboarding/.env/development/database
+      - ./onboarding/.env/development/web
+    environment:
+      - WEBPACKER_DEV_SERVER_HOST=0.0.0.0
+  onboarding-database:
+    image: postgres
+    env_file:
+      - ./onboarding/.env/development/database
+    volumes:
+      - onboarding_db_data:/var/lib/postgresql/data
+
+volumes:
+  recruitment_db_data:
+  onboarding_db_data:
